@@ -6,7 +6,7 @@ retrieved, signifying to a remote tracking service such as healthchecks.io that
 the TCP service is up.
 
 Where this is superior to a simple
-`tcpclient -HR hostname port echo @@ wget https://url -q` is that it implements
+`tcpclient -HR hostname port echo && wget https://url -q` is that it implements
 retries. If a host cannot be contacted within the default 30 minutes since it
 was last up, it will be retried once per minute until it responds. This can be
 throttled down by tweaking the crontab entry to match your grace period for your
@@ -22,4 +22,3 @@ have failed to respond to the previous attempt.
 
  - [ ] Implement HTTP URL retrieval when a host is up
  - [ ] Rewrite this doc
- 
