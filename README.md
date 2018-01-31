@@ -14,9 +14,9 @@ tracking service. For instance, most of my entries are set to update every 30
 minutes with a 10 minute grace period. My crontab entry might look something
 like `0-10,30-40 * * * * python IsItUp.py --check` (full paths omitted for
 brevity). If a host has shown to be up within the check time (default 30 min)
-then it will be ignored for future checks, so we aren't hammering all of they
-behaving hosts once a minute, 20 minutes out of every hour, only the ones that
-have failed to respond to the previous attempt.
+then it will be ignored for future checks, so we aren't hammering all of the
+behaving hosts once a minute, 20 minutes out of every hour. We only continue to
+check the ones that have failed to respond to the previous attempt.
 
 ## TODO:
 
