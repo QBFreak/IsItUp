@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import argparse, socket, sqlite3, sys, time
+import argparse, socket, sqlite3, sys, time, urllib2
 
 """
 	IsItUp.py - Poll TCP ports for up/down states on a regular basis
@@ -60,36 +60,56 @@ def checkRow(checktime, row):
 	"Check an entry and see if it's up"
 	rowid, host, port, address, lastup, lastcheck = row
 
+	# Log some information to the screen
 	log("Service:   %s:%i" % (host, port))
 	log("Address:   " + address)
 
+	# Attempt to connect to the host
 	s = None
 	for res in socket.getaddrinfo(host, port, socket.AF_UNSPEC, socket.SOCK_STREAM):
 		af, socktype, proto, canonname, sa = res
 		try:
 			s = socket.socket(af, socktype, proto)
+		# Failure before we opened the socket
 		except socket.error as msg:
 			s = None
 			continue
 		try:
 			s.connect(sa)
+		# Failure opening the socket
 		except socket.error as msg:
 			s.close()
 			s = None
 			continue
 		break
+	# If we failed to open the socket successfully
 	if s is None:
+		# Note it as down for the user
 		log("Status:    DOWN")
 		log("LASTUP:    " + str(lastup))
+		# Update the database to indicate we tried
 		c.execute("UPDATE checks SET LASTCHECK = %i WHERE ID = %i" % (checktime, rowid))
 		conn.commit()
+	# It's up!
 	else:
+		# Read any data the socket wants to send, then close the connection
 		data = s.recv(1024)
 		s.close()
+		# Log the status for the user
 		log("Status:    UP")
 		log("LASTUP:    " + str(checktime))
+		# Update the database
 		c.execute("UPDATE checks SET LASTUP = %i, LASTCHECK = %i WHERE ID = %i" % (checktime, checktime, rowid))
 		conn.commit()
+		# Retrieve the corresponding URL
+		try:
+			response = urllib2.urlopen(address)
+			html = response.read()
+		# Failure to retrieve URL, warn user and move on
+		except Exception:
+			log("WARNING:   failed to retrieve page from URL." % (rowid, host, port, address))
+			pass
+	# Display final information about this specific check for the user
 	log("LASTCHECK: " + str(checktime))
 	log("")
 
@@ -153,7 +173,7 @@ def addCheck(conn, c, host, port, url):
 #		 instead of this twisty maze of error messages further below
 parser = argparse.ArgumentParser()
 parser.add_argument("--check", help="Run the availability check", action="store_true")
-parser.add_argument("--verbose", help="Display more information while running", action="store_true")
+parser.add_argument("--verbose", help="Display information while running", action="store_true")
 parser.add_argument("--list", help="List the checks in the database", action="store_true")
 parser.add_argument("--remove-check", help="Remove the specified check from the database", action="store", dest="remove_check")
 parser.add_argument("--add-check", help="Add a check to the database", action="store_true")
