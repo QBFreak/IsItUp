@@ -54,8 +54,8 @@ database. You will need to note the ID number in brackets if you intend to
 delete a check from the database.
 
 That brings us to `--remove-check`, which will remove the numbered check from
-the database. As stated previous, you'll need to know the number from the output
-of `--list`.
+the database. As stated previously, you'll need to know the number from the
+output of `--list`.
 
 Lastly is `--add-check` where we can add new checks to the database. It must be
 used in conjunction with the `--host <HOST>` `--port <PORT>`, and `--url <URL>`
@@ -63,5 +63,4 @@ options.
 
 ## TODO:
 
- - [ ] Implement HTTP URL retrieval when a host is up
  - [ ] Rewrite this doc
